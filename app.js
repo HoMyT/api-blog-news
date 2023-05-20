@@ -3,10 +3,19 @@ const path = require('path');
 
 const bodyParser = require('body-parser');
 const user = require('./route/user');
+const article = require('./route/article');
+const helmet = require('helmet');
+const xss = require('./middelware/xss');
 
 const app = express();
 
 app.use(express.json());
+app.use(helmet({
+    contentSecurityPolicy: false,
+    contentTypeOptions: {
+        nosniff: true
+    }
+}))
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -18,6 +27,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/', user);
+app.use('/', xss, user);
+app.use('/article', xss, article)
 
 module.exports = app;
